@@ -70,9 +70,9 @@ export default async function BikePage({ params }: { params: Promise<{ id: strin
                 <div>
                   <span className="text-orange-400 font-semibold">{record.service_type}</span>
                   <p className="text-sm text-zinc-400">
-                    {new Date(record.date).toLocaleDateString('en-US', {
+                    {record.date ? new Date(record.date).toLocaleDateString('en-US', {
                       year: 'numeric', month: 'long', day: 'numeric'
-                    })}
+                    }) : 'Date unknown'}
                   </p>
                 </div>
                 {record.mileage && (

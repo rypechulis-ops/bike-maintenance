@@ -49,7 +49,7 @@ export default async function HomePage() {
                 <p className="text-sm text-zinc-400 mt-1">
                   Last service:{' '}
                   <span className="text-zinc-300">
-                    {new Date(bike.lastRecord.date).toLocaleDateString()}
+                    {bike.lastRecord.date ? new Date(bike.lastRecord.date).toLocaleDateString() : 'Date unknown'}
                   </span>
                   {' · '}
                   <span className="text-zinc-300">{bike.lastRecord.service_type}</span>
