@@ -30,7 +30,10 @@ export async function POST(request: Request) {
       r.description ? `Description: ${r.description}` : null,
       r.performed_by ? `Performed by: ${r.performed_by}` : null,
       parts ? `Parts: ${parts}` : null,
-      r.total_cost ? `Total cost: $${r.total_cost}` : null,
+      r.time_spent ? `Time spent: ${r.time_spent} hours` : null,
+      r.labor_cost ? `Labor cost: $${r.labor_cost} (@ $50/hr)` : null,
+      r.total_cost ? `Parts/other cost: $${r.total_cost}` : null,
+      (r.labor_cost && r.total_cost) ? `Total cost: $${(parseFloat(r.labor_cost) + parseFloat(r.total_cost)).toFixed(2)}` : null,
       r.notes ? `Notes: ${r.notes}` : null,
     ].filter(Boolean).join('\n')
   }).join('\n---\n')
@@ -38,6 +41,7 @@ export async function POST(request: Request) {
   const systemPrompt = `You are a helpful bike maintenance assistant for a personal bike fleet.
 Answer questions about service history, maintenance records, and bike status based on the data below.
 Be concise and direct. If no records match, say so clearly.
+Labor rate is $50/hour for all mechanics. When asked about costs, use the labor_cost and parts/other cost fields provided. If only time_spent is available but no labor_cost, calculate it as time_spent x $50.
 
 FLEET:
 ${bikeList || 'No bikes yet'}
