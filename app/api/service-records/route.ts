@@ -23,6 +23,7 @@ export async function POST(request: Request) {
   const bike_id = formData.get('bike_id') as string
   const date = formData.get('date') as string
   const mileage = formData.get('mileage') as string
+  const time_spent = formData.get('time_spent') as string
   const service_type = formData.get('service_type') as string
   const description = formData.get('description') as string
   const performed_by = formData.get('performed_by') as string
@@ -39,6 +40,8 @@ export async function POST(request: Request) {
       bike_id,
       date,
       mileage: mileage ? parseInt(mileage) : null,
+      time_spent: time_spent ? parseFloat(time_spent) : null,
+      labor_cost: time_spent ? parseFloat((parseFloat(time_spent) * 50).toFixed(2)) : null,
       service_type,
       description: description || null,
       performed_by: performed_by || null,

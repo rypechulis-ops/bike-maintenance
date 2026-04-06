@@ -102,8 +102,27 @@ export default async function BikePage({ params }: { params: Promise<{ id: strin
                 </div>
               )}
 
-              {record.total_cost && (
-                <p className="text-sm font-medium text-zinc-300 mt-2">Total: ${record.total_cost}</p>
+              {(record.time_spent || record.labor_cost || record.total_cost) && (
+                <div className="mt-2 pt-2 border-t border-zinc-800 space-y-1">
+                  {record.time_spent && (
+                    <div className="flex justify-between text-xs text-zinc-400">
+                      <span>Labor ({record.time_spent}hrs @ $50/hr)</span>
+                      <span className="text-zinc-300">${record.labor_cost ?? (record.time_spent * 50).toFixed(2)}</span>
+                    </div>
+                  )}
+                  {record.total_cost && (
+                    <div className="flex justify-between text-xs text-zinc-400">
+                      <span>Parts / Other</span>
+                      <span className="text-zinc-300">${record.total_cost}</span>
+                    </div>
+                  )}
+                  {record.time_spent && record.total_cost && (
+                    <div className="flex justify-between text-sm font-semibold text-white pt-1 border-t border-zinc-700">
+                      <span>Total</span>
+                      <span>${(parseFloat(record.labor_cost ?? record.time_spent * 50) + parseFloat(record.total_cost)).toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
               )}
 
               {record.notes && (

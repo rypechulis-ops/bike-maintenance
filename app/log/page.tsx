@@ -32,6 +32,7 @@ function LogForm() {
     bike_id: preselectedBike,
     date: new Date().toISOString().split('T')[0],
     mileage: '',
+    time_spent: '',
     service_type: '',
     custom_service_type: '',
     description: '',
@@ -71,6 +72,7 @@ function LogForm() {
       formData.append('bike_id', form.bike_id)
       formData.append('date', form.date)
       formData.append('mileage', form.mileage)
+      formData.append('time_spent', form.time_spent)
       formData.append('service_type', form.service_type === 'Other' ? form.custom_service_type : form.service_type)
       formData.append('description', form.description)
       formData.append('performed_by', form.performed_by)
@@ -138,6 +140,24 @@ function LogForm() {
           onChange={e => setForm(f => ({ ...f, mileage: e.target.value }))}
           className={inputClass}
         />
+      </div>
+
+      {/* Time Spent */}
+      <div>
+        <label className="block text-sm font-medium text-zinc-300 mb-1">Time Spent (hours)</label>
+        <input
+          type="number"
+          step="0.25"
+          placeholder="e.g. 1.5 for 1hr 30min"
+          value={form.time_spent}
+          onChange={e => setForm(f => ({ ...f, time_spent: e.target.value }))}
+          className={inputClass}
+        />
+        {form.time_spent && (
+          <p className="text-xs text-orange-400 mt-1">
+            Labor cost: ${(parseFloat(form.time_spent) * 50).toFixed(2)}
+          </p>
+        )}
       </div>
 
       {/* Service Type */}
