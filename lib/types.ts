@@ -22,6 +22,21 @@ export interface ServiceFile {
   created_at: string
 }
 
+export interface RentalRecord {
+  id: string
+  bike_id: string
+  platform: string
+  listing_name: string | null
+  rental_start: string | null
+  rental_end: string | null
+  payout_date: string | null
+  amount: number
+  status: string
+  borrower_name: string | null
+  notes: string | null
+  created_at: string
+}
+
 export interface ServiceRecord {
   id: string
   bike_id: string

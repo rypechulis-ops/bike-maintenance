@@ -1,7 +1,7 @@
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Part, ServiceFile } from '@/lib/types'
+import { Part, ServiceFile, RentalRecord } from '@/lib/types'
 
 export const revalidate = 0
 
@@ -25,12 +25,27 @@ async function getServiceRecords(bikeId: string) {
   return data || []
 }
 
+async function getRentalRecords(bikeId: string) {
+  const { data } = await supabaseAdmin
+    .from('rental_records')
+    .select('*')
+    .eq('bike_id', bikeId)
+    .order('rental_start', { ascending: false })
+  return (data || []) as RentalRecord[]
+}
+
 export default async function BikePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const bike = await getBike(id)
   if (!bike) notFound()
 
-  const records = await getServiceRecords(id)
+  const [records, rentals] = await Promise.all([
+    getServiceRecords(id),
+    getRentalRecords(id),
+  ])
+
+  const completedRentals = rentals.filter(r => r.status === 'returned')
+  const totalEarned = completedRentals.reduce((sum, r) => sum + (r.amount || 0), 0)
 
   return (
     <div className="p-4">
@@ -55,6 +70,48 @@ export default async function BikePage({ params }: { params: Promise<{ id: strin
       >
         + Log Service for {bike.name}
       </Link>
+
+      {rentals.length > 0 && (
+        <div className="mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-green-400">${totalEarned.toFixed(2)}</p>
+              <p className="text-xs text-zinc-500 mt-1">Total Earned</p>
+            </div>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-orange-400">{completedRentals.length}</p>
+              <p className="text-xs text-zinc-500 mt-1">Times Rented</p>
+            </div>
+          </div>
+
+          <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-3">Rental History</h2>
+          <div className="space-y-2">
+            {rentals.map(rental => (
+              <div key={rental.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-zinc-300">
+                    {rental.rental_start ? new Date(rental.rental_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                    {rental.rental_end && rental.rental_end !== rental.rental_start && (
+                      <span className="text-zinc-500"> → {new Date(rental.rental_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                    )}
+                  </p>
+                  {rental.borrower_name && (
+                    <p className="text-xs text-zinc-500">{rental.borrower_name}</p>
+                  )}
+                </div>
+                <div className="text-right">
+                  {rental.status === 'returned' ? (
+                    <p className="text-sm font-semibold text-green-400">${rental.amount.toFixed(2)}</p>
+                  ) : (
+                    <p className="text-xs text-zinc-600 bg-zinc-800 px-2 py-0.5 rounded-full">Cancelled</p>
+                  )}
+                  <p className="text-xs text-zinc-600">FriendWithA</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {records.length === 0 ? (
         <div className="text-center py-12 text-zinc-500">
