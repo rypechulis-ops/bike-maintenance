@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { Bike, Part } from '@/lib/types'
 
 const SERVICE_TYPES = [
@@ -43,8 +42,9 @@ function LogForm() {
   })
 
   useEffect(() => {
-    supabase.from('bikes').select('*').eq('status', 'active').order('name')
-      .then(({ data }) => setBikes(data || []))
+    fetch('/api/bikes')
+      .then(res => res.json())
+      .then((data: Bike[]) => setBikes((data || []).filter((b: Bike) => b.status === 'active')))
   }, [])
 
   const addPart = () => {
